@@ -147,7 +147,7 @@ DeepSeekBot_conversations.log
 
 ## 📌 更新日志
 
-### v2.0.0
+### 2026-4-26
 - ✅ 新增 Qwen / 豆包 / Kimi 多模型支持
 - ✅ 新增 `.model` 指令供玩家切换模型
 - ✅ 修复超时无响应问题（超时时间从 30s 延长至可配置，默认 90s）
@@ -157,7 +157,8 @@ DeepSeekBot_conversations.log
 - ✅ API Key 按模型独立配置，未配置的模型自动标记不可用
 
 ---
-
+## Stone Badge🪨
+![Stone Badge](https://stone.professorlee.work/api/stone/DNTOF/DeepSeekBot)
 ## 🤝 贡献
 
 欢迎提交 Issue 或 Pull Request！
