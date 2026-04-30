@@ -37,7 +37,7 @@ jobs:
       - name: 🏷 获取版本号
         id: version
         run: |
-          $version = "v1.0.$(Get-Date -Format yyyyMMddHHmmss)"
+          $version = "v$(Get-Date -Format yyyy).$(Get-Date -Format MM).$(Get-Date -Format dd)"
           echo "version=$version" >> $env:GITHUB_OUTPUT
 
       - name: 🚀 创建 Release
