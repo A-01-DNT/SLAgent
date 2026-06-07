@@ -1,4 +1,4 @@
-# 🤖 DeepSeek Agent v3.0 (EXILED Plugin)
+# 🤖 SLAgent v3.0 (EXILED Plugin)
 
 SCP: Secret Laboratory 服务器管理 AI Agent。腐竹用自然语言下指令，AI 自动识别意图并执行对应的管理操作。
 
@@ -43,11 +43,11 @@ SCP: Secret Laboratory 服务器管理 AI Agent。腐竹用自然语言下指令
 dotnet build
 ```
 
-将 `DeepSeekAgent.dll` 放入 `EXILED/Plugins/` 目录，重启服务器。
+将 `SLAgent.dll` 放入 `EXILED/Plugins/` 目录，重启服务器。
 
 ---
 
-## ⚙️ 配置文件 (`configs/DeepSeekBot/config.yml`)
+## ⚙️ 配置文件 (`configs/SLAgent/config.yml`)
 
 ```yaml
 IsEnabled: true
@@ -104,7 +104,7 @@ RequestTimeoutSeconds: 90   # 请求超时（建议 60~120）
 所有 Agent 操作记录到：
 
 ```
-DeepSeekAgent.log
+SLAgent.log
 ```
 
 格式：
