@@ -1,4 +1,4 @@
-name: Build & Release DeepSeekBot
+name: Build & Release SLAgent
 
 on:
   push:
@@ -26,12 +26,12 @@ jobs:
         run: dotnet restore
 
       - name: 🛠 编译项目
-        run: msbuild DeepSeekBot.csproj /p:Configuration=Release
+        run: msbuild SLAgent.csproj /p:Configuration=Release
 
       - name: 📂 查找 DLL
         id: find_dll
         run: |
-          $dll = Get-ChildItem -Recurse -Filter "*.dll" | Where-Object { $_.Name -eq "DeepSeekBot.dll" } | Select-Object -First 1
+          $dll = Get-ChildItem -Recurse -Filter "*.dll" | Where-Object { $_.Name -eq "SLAgent.dll" } | Select-Object -First 1
           echo "dll_path=$($dll.FullName)" >> $env:GITHUB_OUTPUT
 
       - name: 🏷 获取版本号
@@ -44,7 +44,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.version }}
-          name: DeepSeekBot ${{ steps.version.outputs.version }}
+          name: SLAgent ${{ steps.version.outputs.version }}
           files: ${{ steps.find_dll.outputs.dll_path }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
