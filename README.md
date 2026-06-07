@@ -130,4 +130,4 @@ DeepSeekAgent.log
 
 ## 📄 许可证
 
-MIT License
+GPL v3
