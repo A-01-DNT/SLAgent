@@ -1,0 +1,39 @@
+name: 🐛 插件问题
+description: 插件运行或功能异常
+title: "[Plugin]: "
+
+body:
+  - type: textarea
+    attributes:
+      label: 问题描述
+      description: 发生了什么？
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 控制台报错
+      description: 请粘贴完整报错日志
+      render: shell
+
+  - type: input
+    attributes:
+      label: EXILED版本
+      placeholder: 例如 8.9.0
+
+  - type: input
+    attributes:
+      label: 游戏版本
+      placeholder: SCP:SL版本
+
+  - type: textarea
+    attributes:
+      label: 配置文件
+      description: 隐去敏感信息
+
+  - type: textarea
+    attributes:
+      label: 复现步骤
+      placeholder: |
+        1. 做了什么
+        2. 发生什么

@@ -6,6 +6,9 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <LangVersion>9.0</LangVersion>
+    <AssemblyName>SLAgent</AssemblyName>
+    <RootNamespace>SLAgent</RootNamespace>
+    <Authors>DNT_OF</Authors>
   </PropertyGroup>
 
   <ItemGroup>
