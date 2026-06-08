@@ -9,8 +9,9 @@
     <AssemblyName>SLAgent</AssemblyName>
     <RootNamespace>SLAgent</RootNamespace>
     <Authors>DNT_OF</Authors>
-    <AssemblyVersion>2026.6.8.0</AssemblyVersion>
-    <FileVersion>2026.6.8.0</FileVersion>
+    <Version>$([System.DateTime]::Now.ToString("yyyy.M.d"))</Version>
+    <AssemblyVersion>$([System.DateTime]::Now.ToString("yyyy.M.d")).0</AssemblyVersion>
+    <FileVersion>$([System.DateTime]::Now.ToString("yyyy.M.d")).0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

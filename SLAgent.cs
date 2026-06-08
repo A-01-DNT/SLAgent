@@ -784,7 +784,7 @@ chat               仅文字回复，不执行任何操作
     {
         public override string Name    => "SLAgent";
         public override string Author  => "DNT_OF";
-        public override Version Version => new Version(2026, 6, 8);
+        public override Version Version => System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
 
         public static SLAgent Instance { get; private set; }
 
