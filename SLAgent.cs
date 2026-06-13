@@ -18,6 +18,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using PlayerRoles;
 using UnityEngine;
+
 namespace SLAgent
 {
     // ═══════════════════════════════════════════════════════════
@@ -185,19 +186,17 @@ spawn_toy          生成场景物件
   { ""type"": ""<类型>"", ""scale"": <倍率，默认1.0>, ""color"": ""<颜色名或#RRGGBB>"" }
 
   type 可选值：
-  capybara          - 水豚彩蛋模型
-  primitive_sphere  - 球体  (0)
-  primitive_capsule - 胶囊  (1)
-  primitive_cylinder- 圆柱  (2)
-  primitive_cube    - 立方体 (3)
-  primitive_plane   - 平面  (4)
-  light             - 光源（color 和 scale 控制颜色/范围）
+  primitive_sphere  - 球体
+  primitive_capsule - 胶囊
+  primitive_cylinder- 圆柱
+  primitive_cube    - 立方体（默认）
+  primitive_plane   - 平面
+  light             - 光源（color 控制颜色，scale 控制范围）
   shooting_target_sport   - 运动靶
   shooting_target_dboy    - D级靶
   shooting_target_binary  - 二值靶
-  text              - 3D 文字（需额外 ""text"" 字段）
 
-  生成位置默认为调用者当前位置。
+  生成位置为调用者当前位置。
 
 destroy_toys       销毁所有已生成的场景物件
   {}
@@ -419,13 +418,31 @@ chat               仅文字回复，不执行任何操作
             var player = FindPlayer(p["target"]?.ToString());
             if (player == null) return $"找不到玩家：{p["target"]}";
             string candyName = p["candy"]?.ToString() ?? "Pink";
-            if (!Enum.TryParse<InventorySystem.Items.Usables.Scp330.CandyKindID>(candyName, true, out var candy))
+
+            if (!Enum.TryParse<InventorySystem.Items.Usables.Scp330.CandyKindID>(
+                    candyName, true, out var candyKind))
                 return $"未知糖果类型：{candyName}（可用：Pink, Red, Green, Blue, Yellow, Purple）";
-            // 通过 EXILED Scp330 wrapper 添加糖果
-            var scp330Item = player.AddItem(ItemType.SCP330);
-            if (scp330Item?.Base is InventorySystem.Items.Usables.Scp330.Scp330Bag bag)
-                bag.TryAddSpecific(candy);
-            return $"已给予 {player.Nickname} {candy} 糖果";
+
+            // 直接操作 SCP-330 背包，不走任何命令字符串
+            var existingBag = player.Items
+                .FirstOrDefault(i => i.Type == ItemType.SCP330)
+                ?.Base as InventorySystem.Items.Usables.Scp330.Scp330Bag;
+
+            if (existingBag != null)
+            {
+                existingBag.TryAddSpecific(candyKind);
+            }
+            else
+            {
+                // 玩家没有袋子，先给一个再加糖
+                player.AddItem(ItemType.SCP330);
+                var newBag = player.Items
+                    .FirstOrDefault(i => i.Type == ItemType.SCP330)
+                    ?.Base as InventorySystem.Items.Usables.Scp330.Scp330Bag;
+                newBag?.TryAddSpecific(candyKind);
+            }
+
+            return $"已给予 {player.Nickname} {candyKind} 糖果";
         }
 
         private static string ToolSetAmmo(JObject p)
@@ -577,11 +594,11 @@ chat               仅文字回复，不执行任何操作
             string subtitle = p["subtitle"]?.ToString() ?? message;
             if (string.IsNullOrWhiteSpace(message)) return "CASSIE 消息为空";
             if (translated)
-                Cassie.MessageTranslated(message, subtitle);
+                Exiled.API.Features.Cassie.MessageTranslated(message, subtitle);
             else if (silent)
-                Cassie.Clear();  // 先清队列再播
+                Exiled.API.Features.Cassie.Message(message, false, false, true);
             else
-                Cassie.Message(message);
+                Exiled.API.Features.Cassie.Message(message);
             return $"CASSIE 已播报：{message}";
         }
 
@@ -617,25 +634,20 @@ chat               仅文字回复，不执行任何操作
             string type     = p["type"]?.ToString()?.ToLower() ?? "primitive_cube";
             float  scale    = p["scale"]?.Value<float>() ?? 1f;
             string colorStr = p["color"]?.ToString() ?? "white";
-            Vector3? pos      = caller?.Position ?? Vector3.zero;
-            Vector3? scaleVec = Vector3.one * scale;
-            Color    color    = ParseColor(colorStr);
+            Vector3 pos     = caller?.Position ?? Vector3.zero;
+            Color   color   = ParseColor(colorStr);
 
-            // 水豚彩蛋 — 直接走 RA 命令字符串，不依赖任何 Toy 类
-            if (type == "capybara")
-            {
-                GameCore.Console.singleton.TypeCommand("spawntoy capybara", ServerConsole.Scs);
-                return "已生成水豚 🐾";
-            }
+            if (type == "capybara" || type == "text")
+                return $"暂不支持 {type}";
 
-            // 光源 — Light.Create 第2参数是 Vector3?（欧拉角），不是 Quaternion
+            // 光源
             if (type == "light")
             {
-                Exiled.API.Features.Toys.Light.Create(pos, null, scaleVec, true, color);
+                Exiled.API.Features.Toys.Light.Create(pos, null, Vector3.one * scale, true, color);
                 return $"已生成光源（颜色：{colorStr}，范围：{scale}）";
             }
 
-            // 射击靶 — ExMod 版类名为 ShootingTargetToy
+            // 射击靶
             if (type.StartsWith("shooting_target"))
             {
                 var targetType = type switch
@@ -648,34 +660,17 @@ chat               仅文字回复，不执行任何操作
                 return $"已生成射击靶：{targetType}";
             }
 
-            // 3D 文字 — ExMod 版类名为 TextToy
-            if (type == "text")
+            // Primitive
+            UnityEngine.PrimitiveType primitiveType = type switch
             {
-                string text = p["text"]?.ToString() ?? "SLAgent";
-                GameCore.Console.singleton.TypeCommand($"spawntoy text {text}", ServerConsole.Scs);
-                return $"已生成 3D 文字：{text}";
-            }
-
-            // Primitive — 枚举值用 int 强转，彻底规避命名空间问题
-            // 0=Sphere 1=Capsule 2=Cylinder 3=Cube 4=Plane
-            int primitiveInt = type switch
-            {
-                "primitive_sphere"   => 0,
-                "primitive_capsule"  => 1,
-                "primitive_cylinder" => 2,
-                "primitive_plane"    => 4,
-                _                    => 3
+                "primitive_sphere"   => UnityEngine.PrimitiveType.Sphere,
+                "primitive_capsule"  => UnityEngine.PrimitiveType.Capsule,
+                "primitive_cylinder" => UnityEngine.PrimitiveType.Cylinder,
+                "primitive_plane"    => UnityEngine.PrimitiveType.Plane,
+                _                    => UnityEngine.PrimitiveType.Cube
             };
-            string primName = type switch
-            {
-                "primitive_sphere"   => "primitiveobject 0",
-                "primitive_capsule"  => "primitiveobject 1",
-                "primitive_cylinder" => "primitiveobject 2",
-                "primitive_plane"    => "primitiveobject 4",
-                _                    => "primitiveobject 3"
-            };
-            GameCore.Console.singleton.TypeCommand($"spawntoy {primName} {colorStr}", ServerConsole.Scs);
-            return $"已生成 Primitive({type})（颜色：{colorStr}，缩放：{scale}）";
+            Exiled.API.Features.Toys.Primitive.Create(primitiveType, pos, null, Vector3.one * scale, true, color);
+            return $"已生成 {primitiveType}（颜色：{colorStr}，缩放：{scale}）";
         }
 
         private static string ToolDestroyToys()
@@ -784,9 +779,12 @@ chat               仅文字回复，不执行任何操作
     {
         public override string Name    => "SLAgent";
         public override string Author  => "DNT_OF";
-        public override Version Version => new Version(3, 0, 3);
+        public override Version Version => new Version(3, 0, 0);
 
         public static SLAgent Instance { get; private set; }
+
+        // 主线程同步上下文，在 OnEnabled（主线程）捕获，用于将工具执行调度回主线程
+        private static SynchronizationContext _mainThreadContext;
 
         private readonly ConcurrentDictionary<string, List<ChatMessage>> conversations = new();
         private readonly ConcurrentDictionary<string, string> playerModels             = new();
@@ -795,6 +793,8 @@ chat               仅文字回复，不执行任何操作
         public override void OnEnabled()
         {
             Instance = this;
+            _mainThreadContext = SynchronizationContext.Current
+                                 ?? new SynchronizationContext(); // fallback 防 null
             ValidateConfig();
             Log.Info($"SLAgent v{Version} 已加载 | .bot <指令> | .model | .reset | .players");
         }
@@ -872,8 +872,19 @@ chat               仅文字回复，不执行任何操作
             if (string.IsNullOrWhiteSpace(apiKey))
                 return $"[{model.DisplayName}] 未配置 API Key";
 
-            string modelId = (modelKey == "doubao" && !string.IsNullOrWhiteSpace(Config.DoubaoEndpointId))
-                ? Config.DoubaoEndpointId : model.ModelId;
+            // 优先用 Config 里配置的模型名，为空才用 ModelRegistry 默认值
+            string modelId = modelKey.ToLower() switch
+            {
+                "deepseek" => !string.IsNullOrWhiteSpace(Config.DeepSeekModelId)
+                                ? Config.DeepSeekModelId : model.ModelId,
+                "qwen"     => !string.IsNullOrWhiteSpace(Config.QwenModelId)
+                                ? Config.QwenModelId     : model.ModelId,
+                "doubao"   => !string.IsNullOrWhiteSpace(Config.DoubaoEndpointId)
+                                ? Config.DoubaoEndpointId : model.ModelId,
+                "kimi"     => !string.IsNullOrWhiteSpace(Config.KimiModelId)
+                                ? Config.KimiModelId     : model.ModelId,
+                _          => model.ModelId
+            };
 
             // 构建带服务器状态的 system prompt
             string systemPrompt = AgentTools.ToolSchema
@@ -882,9 +893,18 @@ chat               仅文字回复，不执行任何操作
 
             var messages = GetConversation(steam64);
 
-            // 超过长度时裁剪（保留最近 N 条）
-            while (Config.MaxContextMessages > 0 && messages.Count >= Config.MaxContextMessages)
-                messages.RemoveAt(0);
+            // 按"对"裁剪：保证每次删除的是完整的 user+assistant 对，不破坏格式
+            if (Config.MaxContextMessages > 0)
+            {
+                while (messages.Count + 2 > Config.MaxContextMessages)
+                {
+                    // 从头删一对（user + assistant），各占一条
+                    if (messages.Count >= 2)
+                        messages.RemoveRange(0, 2);
+                    else
+                        messages.RemoveAt(0);
+                }
+            }
 
             // system 消息每次重建（包含最新状态），不存入历史
             var apiMessages = new List<object>
@@ -930,8 +950,22 @@ chat               仅文字回复，不执行任何操作
 
                 messages.Add(new ChatMessage { role = "assistant", content = rawReply });
 
-                // 解析并执行工具调用
-                return ParseAndExecute(rawReply, caller);
+                // 在主线程执行工具调用，避免 Unity API 跨线程问题
+                string toolResult = null;
+                var tcs = new TaskCompletionSource<string>();
+                _mainThreadContext.Post(_ =>
+                {
+                    try
+                    {
+                        tcs.SetResult(ParseAndExecute(rawReply, caller, messages, steam64));
+                    }
+                    catch (Exception ex)
+                    {
+                        tcs.SetException(ex);
+                    }
+                }, null);
+                toolResult = await tcs.Task;
+                return toolResult;
             }
             catch (OperationCanceledException)
             {
@@ -953,12 +987,12 @@ chat               仅文字回复，不执行任何操作
             }
         }
 
-        private string ParseAndExecute(string rawReply, Player caller)
+        private string ParseAndExecute(string rawReply, Player caller,
+                                        List<ChatMessage> messages, string steam64)
         {
             if (string.IsNullOrWhiteSpace(rawReply))
                 return "（AI 未返回任何内容）";
 
-            // 尝试提取 JSON（有时模型会包裹在 ```json ... ``` 里）
             string jsonStr = rawReply.Trim();
             if (jsonStr.StartsWith("```"))
             {
@@ -971,11 +1005,23 @@ chat               仅文字回复，不执行任何操作
             try
             {
                 var toolCall = JObject.Parse(jsonStr);
-                return AgentTools.Execute(toolCall, caller);
+                string action = toolCall["action"]?.ToString()?.ToLower();
+
+                // chat 工具不注入反馈，直接返回
+                if (action == "chat")
+                    return toolCall["params"]?["message"]?.ToString() ?? "（无内容）";
+
+                string toolResult = AgentTools.Execute(toolCall, caller);
+
+                // ── 反馈闭环：把执行结果注入对话历史，让 AI 知道操作是否成功 ──
+                string feedback = $"[系统通知] 工具执行结果：{toolResult}";
+                messages.Add(new ChatMessage { role = "user",      content = feedback });
+                messages.Add(new ChatMessage { role = "assistant", content = "收到，操作已完成。" });
+
+                return toolResult;
             }
             catch (JsonException)
             {
-                // 模型没有返回 JSON，当普通对话处理
                 return rawReply;
             }
         }
@@ -994,6 +1040,11 @@ chat               仅文字回复，不执行任何操作
         public string DoubaoApiKey     { get; set; } = "";
         public string DoubaoEndpointId { get; set; } = "";
         public string KimiApiKey       { get; set; } = "";
+
+        // 模型名称（迭代速度快，在此配置避免硬编码）
+        public string DeepSeekModelId { get; set; } = "deepseek-chat";
+        public string QwenModelId     { get; set; } = "qwen-plus";
+        public string KimiModelId     { get; set; } = "moonshot-v1-8k";
 
         public string DefaultModel { get; set; } = "deepseek";
 

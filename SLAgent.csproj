@@ -16,7 +16,7 @@
 
   <ItemGroup>
     <!-- Exiled 官方包 -->
-    <PackageReference Include="ExMod.Exiled" Version="9.0.0" />
+    <PackageReference Include="ExMod.Exiled" Version="9.14.2" />
     <!-- JSON 处理 -->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <!-- HttpClient 修复 -->
