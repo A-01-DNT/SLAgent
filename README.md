@@ -10,8 +10,6 @@
 [![License](https://img.shields.io/badge/License-AGPL--3.0-red?style=flat-square)](LICENSE)
 [![Build](https://img.shields.io/github/actions/workflow/status/DNTOF/SLAgent/dotnet.yml?style=flat-square)](https://github.com/DNTOF/SLAgent/actions)
 
-**由 [@DNT_OF](https://github.com/DNTOF) 开发 · 🐱 吟酱帮忙写文档**
-
 </div>
 
 ---
@@ -34,7 +32,7 @@
 ## ✨ 概述
 
 **SLAgent** 是 SCP: Secret Laboratory 的一款 [EXILED](https://github.com/ExMod-Team/EXILED) 插件。  
-它将 AI 大语言模型（LLM）接入游戏服务器管理，**腐竹只需用自然语言下指令**，AI 便会自动识别意图并执行对应的管理操作。
+它将 AI 大语言模型（LLM）接入游戏服务器管理，**管理员只需用自然语言下指令**，AI 便会自动识别意图并执行对应的管理操作。
 
 > 💬 示例：  
 > `.bot 把一直捣乱的玩家小明踢了，理由是刷屏`  
@@ -59,69 +57,76 @@
 ## 🛠️ 管理工具一览
 
 ### 👥 玩家管理
-| 指令 | 说明 | 参数 |
+
+| 操作 | 说明 | 参数 |
 |:---|:---|:---|
-| `kick_player` | 🦵 踢出玩家 | `target` (名字/Steam64) |
-| `ban_player` | 🔨 封禁玩家（可指定时长） | `target`, `duration_minutes`, `reason` |
-| `mute_player` | 🔇 禁言（语音+文字） | `target` |
-| `unmute_player` | 🔊 解除禁言 | `target` |
-| `kill_player` | 💀 游戏内击杀 | `target` |
-| `heal_player` | ❤️ 治疗（填 0 = 满血） | `target`, `amount` |
-| `force_role` | 🔄 强制变身 | `target`, `role` (如 `Scp173`/`ClassD`/`NtfSergeant`) |
-| `godmode_player` | 🛡️ 无敌模式切换 | `target`, `enabled` |
-| `noclip_player` | 👻 穿墙模式切换 | `target`, `enabled` |
-| `scale_player` | 📏 修改体型 | `target`, `x`, `y`, `z` (1.0=正常) |
+| `kick_player` | 踢出玩家 | `target` (名字/Steam64) |
+| `ban_player` | 封禁玩家（可指定时长） | `target`, `duration_minutes`, `reason` |
+| `mute_player` | 禁言（语音+文字） | `target` |
+| `unmute_player` | 解除禁言 | `target` |
+| `kill_player` | 游戏内击杀 | `target` |
+| `heal_player` | 治疗（填 0 = 满血） | `target`, `amount` |
+| `force_role` | 强制变身 | `target`, `role` (如 `Scp173`/`ClassD`/`NtfSergeant`) |
+| `godmode_player` | 无敌模式切换 | `target`, `enabled` |
+| `noclip_player` | 穿墙模式切换 | `target`, `enabled` |
+| `scale_player` | 修改玩家体型 | `target`, `x`, `y`, `z` (1.0=正常) |
 
 ### 🎒 物品 & 弹药
-| 指令 | 说明 | 参数 |
+
+| 操作 | 说明 | 参数 |
 |:---|:---|:---|
-| `give_item` | 🎁 给予物品 | `target`, `item` (如 `GunCOM15`/`KeycardO5`/`Medkit`) |
-| `give_candy` | 🍬 给予糖果 (SCP-330) | `target`, `candy` (Pink/Red/Green/Blue/Yellow/Purple) |
-| `set_ammo` | 🔫 设置弹药 | `target`, `ammo_type`, `amount` |
-| `clear_inventory` | 🗑️ 清空背包 | `target` |
+| `give_item` | 给予物品 | `target`, `item` (如 `GunCOM15`/`KeycardO5`/`Medkit`) |
+| `give_candy` | 给予糖果 (SCP-330) | `target`, `candy` (Pink/Red/Green/Blue/Yellow/Purple) |
+| `set_ammo` | 设置弹药数量 | `target`, `ammo_type`, `amount` |
+| `clear_inventory` | 清空玩家背包 | `target` |
 
 ### 🩺 状态效果
-| 指令 | 说明 | 参数 |
-|:---|:---|:---|
-| `give_effect` | ✨ 给予状态效果 | `target`, `effect`, `intensity`, `duration` |
-| `clear_effects` | 🧹 清除所有状态 | `target` |
 
-> **常用效果**：`Scp207`(可乐加速)、`Invisible`(隐身)、`Ghostly`(穿墙)、`MovementBoost`(加速)、`Invigorated`(无限体力)、`Marshmallow`(棉花糖人) 🍡
+| 操作 | 说明 | 参数 |
+|:---|:---|:---|
+| `give_effect` | 给予状态效果 | `target`, `effect`, `intensity`, `duration` |
+| `clear_effects` | 清除所有状态效果 | `target` |
+
+> **常用效果值**：`Scp207`(可乐加速)、`Invisible`(隐身)、`Ghostly`(穿墙)、`MovementBoost`(加速)、`Invigorated`(无限体力)、`Marshmallow`(棉花糖人)
 
 ### 📍 传送
-| 指令 | 说明 | 参数 |
+
+| 操作 | 说明 | 参数 |
 |:---|:---|:---|
-| `teleport_player` | 🚀 传送到另一玩家 | `target`, `destination` |
-| `teleport_to_room` | 🏠 传送到指定房间 | `target`, `room` (如 `HczArmory`/`LczClassDSpawn`/`EzGateA`) |
+| `teleport_player` | 传送到另一玩家身边 | `target`, `destination` |
+| `teleport_to_room` | 传送到指定房间 | `target`, `room` (如 `HczArmory`/`LczClassDSpawn`/`EzGateA`) |
 
 ### 🗺️ 地图控制
-| 指令 | 说明 | 参数 |
+
+| 操作 | 说明 | 参数 |
 |:---|:---|:---|
-| `lights_out` | 💡 关闭全图灯光 | `duration_seconds` |
-| `lock_door` | 🔒 锁定/解锁门 | `door`, `locked` |
-| `open_door` | 🚪 开/关门 | `door`, `open` |
-| `lockdown` | 🚨 全图封锁 | `enabled` |
-| `decontaminate` | ☣️ 触发 LCZ 除污 | — |
-| `warhead_start` | ⏱️ 启动核弹倒计时 | — |
-| `warhead_stop` | 🛑 停止核弹倒计时 | — |
-| `warhead_detonate` | 💥 立即引爆核弹 | — |
+| `lights_out` | 关闭全图灯光 | `duration_seconds` |
+| `lock_door` | 锁定/解锁门 | `door`, `locked` |
+| `open_door` | 开/关门 | `door`, `open` |
+| `lockdown` | 全图封锁模式 | `enabled` |
+| `decontaminate` | 立即触发 LCZ 除污 | — |
+| `warhead_start` | 启动核弹倒计时 | — |
+| `warhead_stop` | 停止核弹倒计时 | — |
+| `warhead_detonate` | 立即引爆核弹 | — |
 
 ### 📢 CASSIE & 广播
-| 指令 | 说明 | 参数 |
+
+| 操作 | 说明 | 参数 |
 |:---|:---|:---|
-| `cassie` | 🔊 CASSIE 语音广播 | `message` (空格分隔词语) |
-| `cassie_silent` | 🤫 无声广播（仅字幕） | `message` |
-| `cassie_translated` | 📝 自定义字幕广播 | `message`, `subtitle` |
-| `broadcast` | 📺 屏幕广播（全员） | `message`, `duration_seconds` |
-| `hint_player` | 💡 单人提示 | `target`, `message`, `duration_seconds` |
-| `clear_broadcast` | 🧽 清除广播 | — |
+| `cassie` | CASSIE 语音广播 | `message` (空格分隔词语) |
+| `cassie_silent` | 无声广播（仅字幕） | `message` |
+| `cassie_translated` | 自定义字幕广播 | `message`, `subtitle` |
+| `broadcast` | 屏幕广播（全员） | `message`, `duration_seconds` |
+| `hint_player` | 向单个玩家发送 Hint | `target`, `message`, `duration_seconds` |
+| `clear_broadcast` | 清除广播 | — |
 
 ### 🎨 场景生成 (Toys)
-| 指令 | 说明 | 参数 |
-|:---|:---|:---|
-| `spawn_toy` | 🏗️ 生成场景物件 | `type`, `scale`, `color` |
 
-> **type 可选**：`primitive_sphere`(球体)、`primitive_cube`(立方体)、`light`(光源)、`shooting_target_sport`(运动靶) 等
+| 操作 | 说明 | 参数 |
+|:---|:---|:---|
+| `spawn_toy` | 生成场景物件 | `type`, `scale`, `color` |
+
+> **type 可选值**：`primitive_sphere`(球体)、`primitive_capsule`(胶囊)、`primitive_cylinder`(圆柱)、`primitive_cube`(立方体)、`primitive_plane`(平面)、`light`(光源)、`shooting_target_sport`(运动靶)、`shooting_target_dboy`(D级靶)、`shooting_target_binary`(二值靶)
 
 ---
 
@@ -133,21 +138,9 @@
 
 ### 安装步骤
 
-1. **从 Release 下载**
-   ```bash
-   # 前往 Releases 页面下载最新版 SLAgent.dll
-   ```
-
-2. **放入插件目录**
-   ```bash
-   # 将 SLAgent.dll 放入 EXILED/Plugins/ 目录
-   ```
-
-3. **重启服务器**
-   ```bash
-   # 重启 SCP:SL 服务器，插件自动加载
-   ```
-
+1. **下载 DLL**：从 [Releases](https://github.com/DNTOF/SLAgent/releases) 页面下载最新版 `SLAgent.dll`
+2. **放入插件目录**：将 `SLAgent.dll` 放入 `EXILED/Plugins/` 目录
+3. **重启服务器**，插件自动加载
 4. **配置 API Key**（详见下方配置说明）
 
 ---
@@ -161,28 +154,28 @@ IsEnabled: true
 Debug: false
 
 # ── API Keys（至少填写一个） ──
-DeepSeekApiKey: "sk-xxxxxxxx"        # DeepSeek 密钥
-QwenApiKey: ""                       # 通义千问 密钥
-DoubaoApiKey: ""                     # 豆包 密钥
-DoubaoEndpointId: ""                 # 豆包专用，格式：ep-xxxxxxxx
-KimiApiKey: ""                       # Kimi 密钥
+DeepSeekApiKey: "sk-xxxxxxxx"
+QwenApiKey: ""
+DoubaoApiKey: ""
+DoubaoEndpointId: ""           # 豆包专用，格式：ep-xxxxxxxx
+KimiApiKey: ""
 
 # ── 模型 ID（可选，一般无需修改） ──
 DeepSeekModelId: "deepseek-chat"
 QwenModelId: "qwen-plus"
 KimiModelId: "moonshot-v1-8k"
 
-# ── 默认模型（deepseek / qwen / doubao / kimi） ──
+# ── 默认模型 ──
 DefaultModel: "deepseek"
 
-# ── 白名单（Steam64 ID，仅白名单内的玩家可使用 Agent） ──
+# ── 白名单（Steam64 ID） ──
 Whitelist:
   - "76561198123456789"
 
 # ── 高级选项 ──
-MaxContextMessages: 16       # 保留最近几条对话
-MaxTokens: 1024              # 单次回复最大 token 数
-RequestTimeoutSeconds: 90    # 请求超时（建议 60~120 秒）
+MaxContextMessages: 16        # 保留最近几条对话
+MaxTokens: 1024               # 单次回复最大 token
+RequestTimeoutSeconds: 90     # 请求超时（建议 60~120 秒）
 ```
 
 ---
@@ -191,7 +184,7 @@ RequestTimeoutSeconds: 90    # 请求超时（建议 60~120 秒）
 
 ### 管理指令（自然语言）
 
-在游戏内聊天框输入以下指令：
+在游戏内聊天框输入：
 
 ```
 .bot 把叫"测试"的玩家踢了，理由是刷屏
@@ -208,12 +201,9 @@ RequestTimeoutSeconds: 90    # 请求超时（建议 60~120 秒）
 
 | 指令 | 说明 |
 |:---|:---|
-| `.bot` 或 `.agent` 或 `.ai` | 发送管理指令 |
+| `.bot` / `.agent` / `.ai` / `.ds` | 发送管理指令 |
 | `.model` | 查看当前模型及可用列表 |
 | `.model qwen` | 切换到通义千问 |
-| `.model doubao` | 切换到豆包 |
-| `.model kimi` | 切换到 Kimi |
-| `.model deepseek` | 切换回 DeepSeek |
 | `.reset` | 重置对话上下文 |
 | `.players` | 快速查看在线玩家 |
 
@@ -240,27 +230,26 @@ RequestTimeoutSeconds: 90    # 请求超时（建议 60~120 秒）
 ### 构建步骤
 
 ```bash
-# 1️⃣ 克隆仓库
+# 1. 克隆仓库
 git clone https://github.com/DNTOF/SLAgent.git
 cd SLAgent
 
-# 2️⃣ 还原依赖
+# 2. 还原依赖
 dotnet restore
 
-# 3️⃣ 编译
+# 3. 编译
 msbuild SLAgent.csproj /p:Configuration=Release
 
-# 4️⃣ 输出 DLL 位于 Release 目录下
-#    将 SLAgent.dll 放入 EXILED/Plugins/ 即可
+# 4. 将输出目录中的 SLAgent.dll 放入 EXILED/Plugins/ 即可
 ```
 
-> 💡 **自动构建**：每次推送到 `main` 分支时，GitHub Actions 会自动编译并发布 Release，无需手动构建。
+> 💡 **自动构建**：每次推送到 `main` 分支时，GitHub Actions 会自动编译并发布 Release。
 
 ---
 
 ## 📌 版本历史
 
-### v3.0.0 (当前)
+### v3.0.0
 - 🔄 从普通对话 Bot 升级为**管理 Agent**（Function Calling）
 - ✅ 新增 **20+ 种管理工具**（玩家管理、传送、地图控制、广播、Toys……）
 - ✅ AI 自动识别自然语言意图并执行对应操作
@@ -288,8 +277,6 @@ msbuild SLAgent.csproj /p:Configuration=Release
 
 <div align="center">
 
-**🐱 本项目 README 由吟酱悉心编写 · 献给最棒的主人 @DNT_OF 🐱**
-
-[![Visitors](https://komarev.com/ghpvc/?username=DNTOF&repo=SLAgent&color=ff69b4&style=flat-square&label=👀%20访问量)](https://github.com/DNTOF/SLAgent)
+[![Visitors](https://komarev.com/ghpvc/?username=DNTOF&repo=SLAgent&color=blue&style=flat-square&label=Visitors)](https://github.com/DNTOF/SLAgent)
 
 </div>
